@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 contract BettingNumber {
     
@@ -10,6 +11,7 @@ contract BettingNumber {
     uint256 pot;
     address private _owner;
     uint256 MAX_INT;
+    AggregatorV3Interface public priceFeed;
 
     event NewBet(address indexed from, uint256 betAmount);
 
@@ -29,6 +31,7 @@ contract BettingNumber {
         _owner = msg.sender;
         MAX_INT = 2**256 - 1;
         pot = 0 ether;
+        priceFeed = AggregatorV3Interface(0x8A753747A1Fa494EC906cE90E9f37563A8AF630e);
     }
 
     function bet(int256 guess) external payable {
@@ -37,6 +40,16 @@ contract BettingNumber {
         bets.push(betMade);
         console.log("Adding to pot: ", msg.value);
         pot += msg.value;
+    }
+
+    function getLatestPrice() public view returns (int) {
+        (, int price,,,) = priceFeed.latestRoundData();
+        return price;
+    }
+
+    function getDecimals() public view returns (uint8) {
+        uint8 decimals = priceFeed.decimals();
+        return decimals;
     }
 
     function getBets() public view returns (Bet[] memory) {
