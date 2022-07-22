@@ -8,17 +8,20 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 contract BettingNumber {
     
     int256 private numberToGuess;
+    uint8 private numberToGuessDecimal;
     uint256 pot;
     address private _owner;
     uint256 MAX_INT;
     AggregatorV3Interface public priceFeed;
 
     event NewBet(address indexed from, uint256 betAmount);
+    event PriceChange(uint);
 
     struct Bet {
         address payable better;
         uint256 betAmount;
         int256 guess;
+        uint8 guessDecimal;
     }
 
     Bet[] bets;
@@ -26,20 +29,24 @@ contract BettingNumber {
 
     constructor() payable {
         console.log("Hello my name is Bryce and I'm the casino owner :0");
-        console.log("Must guess a positive integer.");
-        numberToGuess = 81;
         _owner = msg.sender;
         MAX_INT = 2**256 - 1;
         pot = 0 ether;
         priceFeed = AggregatorV3Interface(0x8A753747A1Fa494EC906cE90E9f37563A8AF630e);
+        numberToGuess = getLatestPrice();
+        numberToGuessDecimal = getDecimals();
+        emit PriceChange(block.timestamp);
     }
 
-    function bet(int256 guess) external payable {
+    function bet(int256 guess, uint8 guessDecimal) external payable {
         //Create bet
-        Bet memory betMade = Bet(payable(msg.sender), msg.value, guess);
+        require(msg.value>0.001 ether);
+        Bet memory betMade = Bet(payable(msg.sender), msg.value, guess, guessDecimal);
         bets.push(betMade);
         console.log("Adding to pot: ", msg.value);
         pot += msg.value;
+
+        emit NewBet(msg.sender, msg.value);
     }
 
     function getLatestPrice() public view returns (int) {
@@ -50,6 +57,17 @@ contract BettingNumber {
     function getDecimals() public view returns (uint8) {
         uint8 decimals = priceFeed.decimals();
         return decimals;
+    }
+
+    function changeNumberToGuess() private {
+        require(msg.sender == _owner);
+        (,numberToGuess,,,) = priceFeed.latestRoundData();
+        emit PriceChange(block.timestamp);
+    }
+
+    function changeNumberToGuessDecimal() private {
+        require(msg.sender == _owner);
+        numberToGuessDecimal = priceFeed.decimals();
     }
 
     function getBets() public view returns (Bet[] memory) {
@@ -128,6 +146,8 @@ contract BettingNumber {
         // console.log("Bets reset. Size: ", bets.length);
         delete closestBet;
         // console.log("Closest bets reset. Size: ", closestBet.length);
+        changeNumberToGuess();
+        changeNumberToGuessDecimal();
     }
 
 }
