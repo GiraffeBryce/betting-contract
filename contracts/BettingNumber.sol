@@ -95,11 +95,11 @@ contract BettingNumber {
                 // int topGuessError = abs(closestBet[0].guess - numberToGuess);
                 // console.log("Error of guess:", uint256(error));
                 // console.log("Top guess right now:", uint256(topGuessError));
-                if(abs(bets[i].guess * 10**8 - numberToGuess) == abs(closestBet[0].guess* 10**8 - numberToGuess)) {
+                if(abs(bets[i].guess * int(10**bets[i].guessDecimal) - numberToGuess) == abs(closestBet[0].guess* int(10**bets[i].guessDecimal) - numberToGuess)) {
                     closestBet.push(bets[i]);
                     console.log("Another winner: ", bets[i].better);
                 }
-                if(abs(bets[i].guess * 10**8 - numberToGuess) < abs(closestBet[0].guess * 10**8 - numberToGuess)) {
+                if(abs(bets[i].guess * int(10**bets[i].guessDecimal) - numberToGuess) < abs(closestBet[0].guess * int(10**bets[i].guessDecimal) - numberToGuess)) {
                     delete closestBet;
                     closestBet.push(bets[i]);
                     console.log("New winner: ", bets[i].better);
