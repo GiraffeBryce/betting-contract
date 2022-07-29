@@ -18,10 +18,10 @@ const main = async () => {
     potSize = await BetContract.getPot();
 
     // Make bets of 0.5 by Ox70 on number 79, 1.2 by 0x3C on number 94
-    let betTxn = await BetContract.connect(better1).bet(79, 0, {value: ethers.utils.parseEther("0.0001")});
+    let betTxn = await BetContract.connect(better1).bet(1600, 0, {value: ethers.utils.parseEther("0.001")});
     await betTxn.wait();
 
-    let betTxn2 = await BetContract.connect(better2).bet(94, 0, {value: ethers.utils.parseEther("1.2")});
+    let betTxn2 = await BetContract.connect(better2).bet(3000, 0, {value: ethers.utils.parseEther("0.001")});
     await betTxn2.wait();
     // Note: 0x70 should be winner
 

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.0;
 
@@ -40,7 +40,7 @@ contract BettingNumber {
 
     function bet(int256 guess, uint8 guessDecimal) external payable {
         //Create bet
-        require(msg.value>0.001 ether);
+        require(msg.value==0.001 ether);
         Bet memory betMade = Bet(payable(msg.sender), msg.value, guess, guessDecimal);
         bets.push(betMade);
         console.log("Adding to pot: ", msg.value);
@@ -95,11 +95,11 @@ contract BettingNumber {
                 // int topGuessError = abs(closestBet[0].guess - numberToGuess);
                 // console.log("Error of guess:", uint256(error));
                 // console.log("Top guess right now:", uint256(topGuessError));
-                if(abs(bets[i].guess - numberToGuess) == abs(closestBet[0].guess - numberToGuess)) {
+                if(abs(bets[i].guess * 10**8 - numberToGuess) == abs(closestBet[0].guess* 10**8 - numberToGuess)) {
                     closestBet.push(bets[i]);
                     console.log("Another winner: ", bets[i].better);
                 }
-                if(abs(bets[i].guess - numberToGuess) < abs(closestBet[0].guess - numberToGuess)) {
+                if(abs(bets[i].guess * 10**8 - numberToGuess) < abs(closestBet[0].guess * 10**8 - numberToGuess)) {
                     delete closestBet;
                     closestBet.push(bets[i]);
                     console.log("New winner: ", bets[i].better);
